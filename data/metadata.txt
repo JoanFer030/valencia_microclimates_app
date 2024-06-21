@@ -1,0 +1,3 @@
+trees,arbratge-arbolado,2024-06-21,data/trees.json
+traffic,intensitat-transit-trams-intensidad-trafico-tramos,2024-06-21,data/traffic.json
+weather-pollution,rvvcca,2024-06-21,data/weather-pollution.json
