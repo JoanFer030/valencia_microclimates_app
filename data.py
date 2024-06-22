@@ -32,10 +32,12 @@ def last_update(info):
     # Devuelve la fecha de actualización
     info_data = get_json_data(id_name, "info")
     date = info_data["results"][0]["modified"]
+    date = date.split("T")[0]
+    date = datetime.strptime(date, "%Y-%m-%d")
     return date
 
-def update_metadata(info):
-    today = datetime.today().strftime("%Y-%m-%d")
+def update_metadata(info, api_last_update):
+    date = datetime.strftime(api_last_update, "%Y-%m-%d")
     id_name = info[1]
     # Actualizar Archimo metadatos
     with open("data/metadata.txt", "r") as file:
@@ -43,9 +45,10 @@ def update_metadata(info):
         for line in file.read().splitlines():
             line = line.split(",")
             if line[1] == id_name:
-                line[2] = today
-            upt_info.append(",".join(line))
-            
+                line[2] = date
+            if line[0] in ["model", "month-weather"]:
+                line[1] = "0"
+            upt_info.append(",".join(line)) 
     with open("data/metadata.txt", "w") as file:
         txt = "\n".join(upt_info)
         file.write(txt)
@@ -59,7 +62,7 @@ def load_data(info):
     data = pd.read_json(path)
     return data
 
-def download_data(info):
+def download_data(info, api_last_update):
     id_name = info[1]
     # Descargar 
     data_json_raw = get_json_data(id_name)
@@ -78,9 +81,14 @@ def download_data(info):
                    "velocidad_del_viento", "no", "no2", "nox", "o3", "co", "so2", "pm1", "pm2_5", "pm10"]]
         data.columns = ["station", "date", "temperature", "humidity", "rainfall", "wind_speed",
                  "no", "no2", "nox", "o3", "co", "so2", "pm1", "pm2_5", "pm10"]
+    elif info[0] == "stations":
+        data = data_raw[["nombre"]]
+        data["lon"]  = data_raw["geo_point_2d"].apply(lambda x: dict(x)["lon"])
+        data["lat"]  = data_raw["geo_point_2d"].apply(lambda x: dict(x)["lat"])
+        data.columns = ["name", "lon", "lat"]
     # Actualizar datos y metadatos
     update_data(data, info[3])
-    update_metadata(info)
+    update_metadata(info, api_last_update)
     # Devolver datos
     return data
 
@@ -91,11 +99,13 @@ def get_data(name):
         raise Exception("The database does not exist")
     api_last_update = last_update(info)
     local_last_update = info[2]
+    local_last_update = datetime.strptime(local_last_update, "%Y-%m-%d")
     # Comprobar si está actualizado
     if local_last_update == api_last_update: 
         # Entonces -> Cargar y devolver
         data = load_data(info)
     else:
+        print(f"Updating {name} database...")
         # Sino -> Descargar, preprocesar, actualizar y devolver
-        data = download_data(info)
+        data = download_data(info, api_last_update)
     return data
