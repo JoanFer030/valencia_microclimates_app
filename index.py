@@ -1,13 +1,10 @@
-import dash
 from dash import html, dcc
-import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 from pages.home import create_page_home
 from pages.microclimates import create_page_microclimates
 from pages.future import create_page_future
 from pages.error import create_page_error
-
-app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.LUX])
+from app import app
 
 server = app.server
 app.config.suppress_callback_exceptions = True

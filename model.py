@@ -76,7 +76,7 @@ def load_models(info):
 
 def update_weather():
     weather = get_data("weather-pollution")
-    weather = weather[["date", "temperature", "rainfall", "wind_speed"]]
+    weather = weather[["date", "temperature", "rainfall", "wind_speed", "co", "so2", "pm2_5"]]
     weather["month"] = weather["date"].apply(lambda x: x.month)
     data = weather.groupby("month").mean([""]).reset_index()
     update_metadata(["month-weather"])
@@ -92,13 +92,21 @@ def get_weather(month):
     return month
 
 def predict(models, values):
-    values = get_weather(values[0]) + values[1:]
+    month = get_weather(values[0])
+    values = month[1:4] + values[1:]
     predictions = {}
     values = np.array([values])
     for name, model in models.items():
+        print(name)
         pred = model.predict(values)
         predictions[name] = pred
-    return predictions
+    predictions_df = pd.DataFrame({
+        "label": predictions.keys(),
+        "actual": month[3:],
+        "model": list(float(v[0]) for v in predictions.values())
+        }
+    )
+    return predictions_df
 
 def get_models():
     status, info = exists("model")

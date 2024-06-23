@@ -29,6 +29,8 @@ def get_json_data(id_name, type_request = "get"):
 
 def last_update(info):
     id_name = info[1]
+    if id_name in ["0", "1"]:
+        return datetime.strptime(info[2], "%Y-%m-%d")
     # Devuelve la fecha de actualización
     info_data = get_json_data(id_name, "info")
     date = info_data["results"][0]["modified"]
@@ -100,6 +102,7 @@ def get_data(name):
     api_last_update = last_update(info)
     local_last_update = info[2]
     local_last_update = datetime.strptime(local_last_update, "%Y-%m-%d")
+
     # Comprobar si está actualizado
     if local_last_update == api_last_update: 
         # Entonces -> Cargar y devolver

@@ -2,4 +2,5 @@
 __pycache__/
 data_preparation.ipynb
 model.ipynb
+plots.ipynb
 .gitignore
