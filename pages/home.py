@@ -6,10 +6,9 @@ from app import app
 from data import get_data
 
 nav = create_navbar()
-text = dcc.Markdown('''
-    #### Dash and Markdown
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis enim eget metus vulputate ultrices. Duis aliquet turpis non magna egestas semper. Nulla vel arcu rutrum, consequat nibh ac, euismod velit. Nunc tempor, dolor suscipit dignissim interdum, justo diam efficitur est, et facilisis velit tortor sit amet mauris. Nulla sit amet imperdiet lorem. Sed imperdiet felis in euismod pellentesque. Quisque sit amet malesuada sem. Nulla id ornare risus. Morbi pellentesque, dui non ultrices euismod, nisl nisl bibendum erat, nec commodo erat mauris vel orci. Phasellus interdum, magna quis efficitur ullamcorper, elit enim facilisis lacus, sed posuere lacus mauris non lacus. Etiam quis venenatis nisl, aliquet iaculis nisl. Cras iaculis hendrerit volutpat. Vestibulum gravida nisi sed risus bibendum finibus ac quis nisl. Donec pellentesque velit in placerat porttitor.Suspendisse potenti. In congue dolor sit amet metus maximus maximus. Praesent eleifend a nisi sed vehicula. Aliquam erat volutpat. Nulla pellentesque eros mauris, at rutrum nisi ornare vel. Vivamus lobortis justo quis luctus dictum. Pellentesque dictum tristique ante nec imperdiet. Praesent consequat rhoncus enim et blandit. Pellentesque sed ullamcorper diam. Nam at nulla et mauris tempus scelerisque eget nec nisl. Ut scelerisque mi id ex rhoncus malesuada. Mauris at malesuada neque. Proin sagittis feugiat mi, quis porttitor lacus condimentum sit amet. Nulla molestie aliquam luctus.Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce ornare vitae augue non lacinia. In semper venenatis laoreet. Nulla sollicitudin libero et lobortis facilisis. Etiam lorem libero, imperdiet ac porttitor ut, ultricies et massa. Proin eget diam in tellus scelerisque posuere. Proin risus enim, sagittis eget orci ut, imperdiet semper neque. In mattis accumsan lorem at bibendum.
-''')
+title = html.H3("Environmental measurement Stations in Valencia")
+text = html.P("Pollution measurement stations in Valencia are essential for monitoring air quality and its components, such as particulate matter (PM10, PM2.5), nitrogen oxides (NOx), sulfur dioxide (SO2), ozone (O3) and carbon monoxide (CO). This information is crucial for understanding air pollution levels and their effects on public health and the environment.")
+text2 = html.P("The importance of these stations lies in several key aspects: First, they help control the adverse effects of pollution on local ecosystems, including parks and urban green areas, as well as nearby water resources. They also provide the data needed to develop effective environmental management policies and sustainable urban planning. This includes the creation of green zones, restrictions on vehicular traffic in sensitive areas, and the promotion of cleaner forms of transportation.")
 
 weather_pollution = get_data("weather-pollution")
 grouped = weather_pollution.groupby(["station", "date"]).mean().reset_index()
@@ -83,7 +82,11 @@ pollution = dcc.Dropdown(
 def create_page_home():
     layout = html.Div([
         nav,
-        text,
+        html.Div([
+            title, 
+            html.Br(),
+            text, text2
+        ], style = {"margin": "1em"}),
         html.Div([
             dcc.Graph(id = "weather_plot",
                       style = {'height': 'auto'}),
