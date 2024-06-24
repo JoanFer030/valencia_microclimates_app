@@ -28,7 +28,7 @@ def get_barplot(month, trees, cars):
         xaxis_title = "Pollutant",
         yaxis_title = "PPM",
         legend_title = "Source",
-        height = 550
+        height = 500
     )
     fig.update_xaxes(
         tickvals = ["co", "so2", "pm"],
@@ -108,17 +108,20 @@ month = dcc.Dropdown(
     clearable = False,
     )
 
-text = dcc.Markdown('''
-    #### Dash and Markdown
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis enim eget metus vulputate ultrices. Duis aliquet turpis non magna egestas semper. Nulla vel arcu rutrum, consequat nibh ac, euismod velit. Nunc tempor, dolor suscipit dignissim interdum, justo diam efficitur est, et facilisis velit tortor sit amet mauris. Nulla sit amet imperdiet lorem. Sed imperdiet felis in euismod pellentesque. Quisque sit amet malesuada sem. Nulla id ornare risus. Morbi pellentesque, dui non ultrices euismod, nisl nisl bibendum erat, nec commodo erat mauris vel orci. Phasellus interdum, magna quis efficitur ullamcorper, elit enim facilisis lacus, sed posuere lacus mauris non lacus. Etiam quis venenatis nisl, aliquet iaculis nisl. Cras iaculis hendrerit volutpat. Vestibulum gravida nisi sed risus bibendum finibus ac quis nisl. Donec pellentesque velit in placerat porttitor.Suspendisse potenti. In congue dolor sit amet metus maximus maximus. Praesent eleifend a nisi sed vehicula. Aliquam erat volutpat. Nulla pellentesque eros mauris, at rutrum nisi ornare vel. Vivamus lobortis justo quis luctus dictum. Pellentesque dictum tristique ante nec imperdiet. Praesent consequat rhoncus enim et blandit. Pellentesque sed ullamcorper diam. Nam at nulla et mauris tempus scelerisque eget nec nisl. Ut scelerisque mi id ex rhoncus malesuada. Mauris at malesuada neque. Proin sagittis feugiat mi, quis porttitor lacus condimentum sit amet. Nulla molestie aliquam luctus.Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce ornare vitae augue non lacinia. In semper venenatis laoreet. Nulla sollicitudin libero et lobortis facilisis. Etiam lorem libero, imperdiet ac porttitor ut, ultricies et massa. Proin eget diam in tellus scelerisque posuere. Proin risus enim, sagittis eget orci ut, imperdiet semper neque. In mattis accumsan lorem at bibendum.
-''')
+title = html.H3("Urban Microclimates")
+text = html.P("The machine learning model designed aims to estimate how climate, the number of cars in daily circulation and the density of trees per square kilometer affect the concentration of specific pollutants considered highly dangerous: nitrogen dioxide (NO2), carbon monoxide (CO) and fine particulate matter (PM2.5).")
+text2 = html.P("First of all, climate is a crucial factor as it influences the dispersion and stability of pollutants in the atmosphere. Meteorological conditions such as temperature, humidity and wind speed can affect how these pollutants disperse and accumulate in specific areas of a city.")
+text3 = html.P("The number of cars in daily circulation represents a direct source of pollutant emissions, especially NO2 and CO, which come mainly from vehicle exhaust. The amount of traffic significantly influences the concentration of these pollutants in the air, being a key indicator for the model. On the other hand, the density of trees per square kilometer plays a crucial role in the mitigation of these pollutants. Trees act as natural filters by absorbing carbon dioxide and other substances, as well as trapping suspended particles in their leaves and branches.")
 
 def create_page_future():
     layout = html.Div([
         nav,
-        text,
         html.Div([
-            html.Br(),
+                title, 
+                html.Br(),
+                text, text2, text3
+            ], style = {"margin": "1em"}),
+        html.Div([
             html.P("Select month:"),
             month,
             html.Br(),
@@ -131,7 +134,7 @@ def create_page_future():
             html.Br(),
             html.P("Select daily car traffic(nº/day):"),
             n_cars
-        ], style={'width': '33%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+        ], style={'width': '30%', 'display': 'inline-block', 'verticalAlign': 'top', "margin": "1%"}),
         html.Div([
             dcc.Graph(id = "actual_model_plot",
                       style = {'height': 'auto'}),
