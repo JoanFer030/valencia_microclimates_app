@@ -1,32 +1,35 @@
 from data import get_data
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.linear_model import LinearRegression
 import pickle
 import numpy as np
 import pandas as pd
 from datetime import datetime
-
-def exists(name):
-    # Carga archivo metadatos
-    with open("data/metadata.txt") as file:
-        for line in file.read().splitlines():
-            # Comprueba si existe 
-            if line.split(",")[0] == name:
-                # Entoces -> Devuelve True y info
-                return (True, line.split(","))
-    # Sino -> Devuelve False
-    return (False, [])
+from utils import exists
 
 def get_model_data():
     # Cargar y procesar datos
-    valencia_area = 134.6 #km2
-    n_trees = len(get_data("trees"))
-    trees_km2_valencia = n_trees/valencia_area
-    cars_per_day_valencia = np.max(get_data("traffic")["cars_per_hour"])*24
+    stations = get_data("stations")[["name", "cars_per_day", "trees"]]
     weather_pollution = get_data("weather-pollution")
-    model_data = weather_pollution.groupby("date").mean([""]).reset_index()
-    model_data = model_data[["temperature", "wind_speed", "rainfall", "co", "so2", "pm2_5"]].dropna()
-    model_data["cars_per_day"] = cars_per_day_valencia
-    model_data["trees_per_km2"] = trees_km2_valencia
+    names = {
+        "Universidad Politécnica": "Politecnico",
+        "Boulevar Sur": "Bulevard Sud",
+        "Molí del Sol": "Moli del Sol",
+        "Viveros": "Viveros",
+        "Centro": "Valencia Centro",
+        "Olivereta": "Conselleria Meteo",
+        "Francia": "Avda. Francia",
+        "Pista de Silla": "Pista Silla",
+        "Dr. Lluch": "Puerto Valencia",
+        "Cabanyal": "Nazaret Meteo",
+        "Patraix": ""
+    }
+    stations["name"] = stations["name"].apply(lambda x: names[x])
+    weather_pollution = weather_pollution.groupby(["station", "date"]).mean().reset_index()
+    weather_pollution = weather_pollution.merge(stations, left_on = "station", right_on = "name")
+    weather_pollution = weather_pollution[["temperature", "wind_speed", "rainfall", "co", "so2", "pm2_5", "cars_per_day", "trees"]]
+    model_data = weather_pollution.dropna()
     return model_data
 
 def update_models(info, models):
@@ -54,13 +57,16 @@ def update_metadata(info):
 def train_models(info):
     # Cargar datos, entrenar modelo y guardarlo
     model_data = get_model_data()
-    X = model_data[["temperature", "wind_speed", "rainfall", "cars_per_day", "trees_per_km2"]]
+    X = model_data[["temperature", "wind_speed", "rainfall", "cars_per_day", "trees"]]
     y_co, y_so2, y_pm = model_data[["co"]], model_data[["so2"]], model_data[["pm2_5"]]
-    co_model = RandomForestRegressor(n_estimators = 100)
+    co_model = MLPRegressor(hidden_layer_sizes = (10, 10),
+                         activation = "tanh")
     co_model.fit(X, y_co)
-    so2_model = RandomForestRegressor(n_estimators = 100)
+    so2_model = MLPRegressor(hidden_layer_sizes = (10, 10),
+                         activation = "tanh")
     so2_model.fit(X, y_so2)
-    pm_model = RandomForestRegressor(n_estimators = 100)
+    pm_model = MLPRegressor(hidden_layer_sizes = (10, 10),
+                         activation = "tanh")
     pm_model.fit(X, y_pm)
     models = {"co": co_model, "so2": so2_model, "pm": pm_model}
     update_models(info, models)
