@@ -2,5 +2,5 @@ trees,arbratge-arbolado,2024-05-27,data/trees.json
 traffic,intensitat-transit-trams-intensidad-trafico-tramos,2024-05-28,data/traffic.json
 weather-pollution,rvvcca,2023-02-15,data/weather-pollution.json
 stations,estacions-contaminacio-atmosferiques-estaciones-contaminacion-atmosfericas,2023-09-19,data/stations.json
-month-weather,1,2024-06-23,data/month-weather.json
-model,1,2024-06-23,data/model.sav
+month-weather,1,2024-06-24,data/month-weather.json
+model,1,2024-06-24,data/model.sav
