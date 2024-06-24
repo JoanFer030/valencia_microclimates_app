@@ -2,17 +2,7 @@ import json
 import requests
 import pandas as pd
 from datetime import datetime
-
-def exists(name):
-    # Carga archivo metadatos
-    with open("data/metadata.txt") as file:
-        for line in file.read().splitlines():
-            # Comprueba si existe 
-            if line.split(",")[0] == name:
-                # Entoces -> Devuelve True y info
-                return (True, line.split(","))
-    # Sino -> Devuelve False
-    return (False, [])
+from utils import exists, calculate_tree_density, calculate_traffic
 
 def get_json_data(id_name, type_request = "get"):
     # Descarga los datos y los devuelve
@@ -71,23 +61,65 @@ def download_data(info, api_last_update):
     data_raw = pd.DataFrame.from_dict(data_json_raw)
     # Preprocesar
     if info[0] == "trees":
-        data = data_raw[["nom_comu_c", "tipo_situacion"]]
+        data = data_raw[["nom_comu_c"]]
         data["lon"]  = data_raw["geo_point_2d"].apply(lambda x: dict(x)["lon"])
         data["lat"]  = data_raw["geo_point_2d"].apply(lambda x: dict(x)["lat"])
-        data.columns = ["name", "location", "lon", "lat"]
+        data["lon"] = data["lon"].round(3)
+        data["lat"] = data["lat"].round(3)
+        data = data.groupby(["lon", "lat"]).count().reset_index()
+        data = data[["lon", "lat", "nom_comu_c"]]
+        data.columns = ["lon", "lat", "n"]
     elif info[0] == "traffic":
         data = data_raw[["idtramo", "des_tramo", "lectura", "geo_shape"]]
         data.columns = ["id", "name", "cars_per_hour", "geo_shape"]
     elif info[0] == "weather-pollution":
         data = data_raw[["estacion", "fecha", "temperatura", "humidad_relativa", "precipitacion", 
-                   "velocidad_del_viento", "no", "no2", "nox", "o3", "co", "so2", "pm1", "pm2_5", "pm10"]]
+                   "velocidad_del_viento", "no", "no2", "o3", "co", "so2", "pm2_5", "pm10"]]
         data.columns = ["station", "date", "temperature", "humidity", "rainfall", "wind_speed",
-                 "no", "no2", "nox", "o3", "co", "so2", "pm1", "pm2_5", "pm10"]
+                 "no", "no2", "o3", "co", "so2", "pm2_5", "pm10"]
+        data["date"] = pd.to_datetime(data["date"])
+        data = data[data["date"] >= datetime.strptime("2010-01-01", "%Y-%m-%d")]
+        data = data[data["date"] < datetime.strptime("2021-01-01", "%Y-%m-%d")]
     elif info[0] == "stations":
+        trees = get_data("trees")
+        traffic = get_data("traffic")
+        weather_pollution = get_data("weather-pollution")
         data = data_raw[["nombre"]]
         data["lon"]  = data_raw["geo_point_2d"].apply(lambda x: dict(x)["lon"])
         data["lat"]  = data_raw["geo_point_2d"].apply(lambda x: dict(x)["lat"])
         data.columns = ["name", "lon", "lat"]
+        tree_dens = []
+        cars_day = []
+        co = []
+        so2 = []
+        pm = []
+        for name in data["name"].unique():
+            dens = calculate_tree_density(data, trees, name)
+            cars = calculate_traffic(data, traffic, name)
+            names = {
+                "Universidad Politécnica": "Politecnico",
+                "Boulevar Sur": "Bulevard Sud",
+                "Molí del Sol": "Moli del Sol",
+                "Viveros": "Viveros",
+                "Centro": "Valencia Centro",
+                "Olivereta": "Conselleria Meteo",
+                "Francia": "Avda. Francia",
+                "Pista de Silla": "Pista Silla",
+                "Dr. Lluch": "Puerto Valencia",
+                "Cabanyal": "Nazaret Meteo",
+                "Patraix": ""
+            }   
+            station_data = weather_pollution[weather_pollution["station"] == names[name]]
+            tree_dens.append(dens)
+            cars_day.append(cars)
+            co.append(station_data["co"].mean())
+            so2.append(station_data["so2"].mean())
+            pm.append(station_data["pm2_5"].mean())
+        data["cars_per_day"] = cars_day
+        data["trees"] = tree_dens
+        data["co"] = co
+        data["so2"] = so2
+        data["pm"] = pm
     # Actualizar datos y metadatos
     update_data(data, info[3])
     update_metadata(info, api_last_update)
