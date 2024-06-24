@@ -10,10 +10,11 @@ import branca.colormap as cm
 import numpy as np
 
 nav = create_navbar()
-text = dcc.Markdown('''
-    #### Dash and Markdown
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis enim eget metus vulputate ultrices. Duis aliquet turpis non magna egestas semper. Nulla vel arcu rutrum, consequat nibh ac, euismod velit. Nunc tempor, dolor suscipit dignissim interdum, justo diam efficitur est, et facilisis velit tortor sit amet mauris. Nulla sit amet imperdiet lorem. Sed imperdiet felis in euismod pellentesque. Quisque sit amet malesuada sem. Nulla id ornare risus. Morbi pellentesque, dui non ultrices euismod, nisl nisl bibendum erat, nec commodo erat mauris vel orci. Phasellus interdum, magna quis efficitur ullamcorper, elit enim facilisis lacus, sed posuere lacus mauris non lacus. Etiam quis venenatis nisl, aliquet iaculis nisl. Cras iaculis hendrerit volutpat. Vestibulum gravida nisi sed risus bibendum finibus ac quis nisl. Donec pellentesque velit in placerat porttitor.Suspendisse potenti. In congue dolor sit amet metus maximus maximus. Praesent eleifend a nisi sed vehicula. Aliquam erat volutpat. Nulla pellentesque eros mauris, at rutrum nisi ornare vel. Vivamus lobortis justo quis luctus dictum. Pellentesque dictum tristique ante nec imperdiet. Praesent consequat rhoncus enim et blandit. Pellentesque sed ullamcorper diam. Nam at nulla et mauris tempus scelerisque eget nec nisl. Ut scelerisque mi id ex rhoncus malesuada. Mauris at malesuada neque. Proin sagittis feugiat mi, quis porttitor lacus condimentum sit amet. Nulla molestie aliquam luctus.Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce ornare vitae augue non lacinia. In semper venenatis laoreet. Nulla sollicitudin libero et lobortis facilisis. Etiam lorem libero, imperdiet ac porttitor ut, ultricies et massa. Proin eget diam in tellus scelerisque posuere. Proin risus enim, sagittis eget orci ut, imperdiet semper neque. In mattis accumsan lorem at bibendum.
-''')
+title = html.H3("Urban Microclimates")
+text = html.P("Urban microclimates refer to local climatic variations within a city, influenced by factors such as urban geometry, land use, vegetation and human activities. These microclimates can differ significantly from the surrounding regional climate due to heat accumulation, local wind generation and pollutant retention.")
+text2 = html.P("In relation to pollution, urban microclimates can intensify its effects. For example, areas with high traffic density tend to have higher concentrations of pollutants such as nitrogen oxides and particulate matter due to vehicle emissions.")
+text3 = html.P("Trees and other forms of vegetation can mitigate these effects in several ways. For one, they absorb carbon dioxide and other harmful gases, helping to clean the air and reduce air pollution levels. In addition, they provide shade and cool the environment through transpiration, which can partially counteract the effect of urban heat islands by reducing ambient temperatures.")
+
 stations = get_data("stations")
 trees = get_data("trees")
 stations_opts = stations["name"].unique().tolist()
@@ -88,7 +89,11 @@ def create_page_microclimates():
     layout = html.Div([
         nav,
         html.Div([
-            text
+            html.Div([
+                title, 
+                html.Br(),
+                text, text2, text3
+            ], style = {"margin": "1em"})
         ], style={'width': '30%', 'display': 'inline-block', 'verticalAlign': 'top'}),
         html.Div([
             html.Div([
