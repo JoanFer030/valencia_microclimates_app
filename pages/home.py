@@ -50,7 +50,7 @@ def get_pollution_plot(stations, measure):
     fig.update_layout(
         title = "Contaminant measures",
         xaxis_title = "Date",
-        yaxis_title = "PPM",
+        yaxis_title = f"{measure} (PPM)",
         showlegend = False,
         height = 550
     )
