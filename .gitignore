@@ -1,5 +1,6 @@
 .venv/
 __pycache__/
+deployment/
 data_preparation.ipynb
 model.ipynb
 plots.ipynb
